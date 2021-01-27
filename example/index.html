@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>soda examples</title>
+    <script src="d3.js"></script>
+    <style type="text/css">
+	    form  { display: table;      }
+	    p     { display: table-row;  }
+	    label { display: table-cell; }
+	    input { display: table-cell; }
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        div.axis {
+            width: calc(100% - 40px);
+            height: 30px;
+            margin-top: 20px;
+            margin-left: 20px;
+            margin-right: 20px;
+            /*outline: 2px solid black;*/
+            overflow-x: hidden;
+        }
+        div.chart {
+            width: calc(100% - 40px);
+            height: 100px;
+            margin-left: 20px;
+            margin-right: 20px;
+            padding: 0px;
+            /*outline: 2px solid black;*/
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="axis"></div>
+    <div id="example-1" class="chart ucsc-chart"></div>
+    <div>
+        <p>
+            <label for="chr">Chr:</label>
+            <input type="text" id="chr" name="chr" value="1"><br>
+        </p>
+
+        <p>
+            <label for="start">Start:</label>
+            <input type="text" id="start" name="start" value="20000"><br>
+        </p>
+
+        <p>
+            <label for="end">End:</label>
+            <input type="text" id="end" name="end" value="30000"><br><br>
+        </p>
+        <button id='submit-query'>Submit query</button><br>
+
+        <br>
+        <br>
+
+        <p>
+            <label for="start">Start:</label>
+            <input type="text" id="jump-start" name="start" value="40000"><br>
+        </p>
+
+        <p>
+            <label for="end">End:</label>
+            <input type="text" id="jump-end" name="end" value="50000"><br><br>
+        </p>
+        <button id='zoom-jump'>Jump</button><br>
+    </div>
+    <script src="main.js"></script>
+
+</body>
+</html>

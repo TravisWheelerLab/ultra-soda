@@ -1,0 +1,20 @@
+{
+  "name": "ultra-soda-example",
+  "version": "1.0.0",
+  "description": "An example usage of ultra-soda",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@traviswheelerlab/soda": "file:../../soda",
+    "ultra-soda": "file:.."
+  },
+  "devDependencies": {
+    "typescript": "^3.8.0",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
+  }
+}
