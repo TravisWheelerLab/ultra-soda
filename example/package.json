@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "@traviswheelerlab/soda": "file:../../soda",
+    "@types/jquery": "^3.5.5",
+    "jquery": "^3.5.1",
     "ultra-soda": "file:.."
   },
   "devDependencies": {

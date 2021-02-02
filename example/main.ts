@@ -1,4 +1,5 @@
 import * as soda from '@traviswheelerlab/soda'
+import * as $ from 'jquery';
 import {UltraTrackChart} from 'ultra-soda'
 import {ZoomController, ResizeController, Chart, AxisChart} from '@traviswheelerlab/soda'
 import {UltraTrackChartRenderParams} from "../src/ultra-chart";
@@ -87,18 +88,74 @@ function zoomJump(): void {
 function checkUrl(): void {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    // console.log(urlParams.get('chromosome'));
-    // console.log(urlParams.get('start'));
-    // console.log(urlParams.get('end'));
+    let chromosome = urlParams.get('chromosome');
+    if (chromosome !== null) {
+        let chromInput = <HTMLInputElement>document.getElementById('chromosome');
+        if (chromInput !== undefined) {
+            chromInput.value = chromosome;
+        }
+        else {
+            throw("Can't find chromosome input");
+        }
+    }
 
+    let start = urlParams.get('start');
+    if (start !== null) {
+        let startInput = <HTMLInputElement>document.getElementById('start');
+        if (startInput !== undefined) {
+            startInput.value = start;
+        }
+        else {
+            throw("Can't find start input");
+        }
+    }
+
+    let end = urlParams.get('end');
+    if (end !== null) {
+        let endInput = <HTMLInputElement>document.getElementById('end');
+        if (endInput !== undefined) {
+            endInput.value = end;
+        }
+        else {
+            throw("Can't find end input");
+        }
+    }
 }
 
 const submitButton = document.getElementById('submit-query')!;
-console.log(submitButton);
 if (submitButton !== undefined) {
     submitButton.addEventListener('click', submitQuery);
 }
 else {
     throw("Can't find submit button");
 }
-// checkUrl();
+//
+// function toggleFileld(element: HTMLElement): void {
+//     var $field = $(element).closest(".field");
+//     if (element.value) {
+//         $field.addClass("filled");
+//     } else {
+//         $field.removeClass("filled");
+//     }
+// }
+//
+// $("form input").on("blur input focus", function() {
+//     var $field = $(this).closest(".field");
+//     //@ts-ignore
+//     if (this.value) {
+//         $field.addClass("filled");
+//     } else {
+//         $field.removeClass("filled");
+//     }
+// });
+//
+// $("form input").on("focus", function() {
+//     var $field = $(this).closest(".field");
+//     if (this) {
+//         $field.addClass("filled");
+//     } else {
+//         $field.removeClass("filled");
+//     }
+// });
+
+checkUrl();
