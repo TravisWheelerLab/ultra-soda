@@ -2,73 +2,128 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>soda examples</title>
-    <script src="d3.js"></script>
+    <title>ultra-soda</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <style type="text/css">
-	    form  { display: table;      }
-	    p     { display: table-row;  }
-	    label { display: table-cell; }
-	    input { display: table-cell; }
-
-        body {
-            margin: 0;
-            padding: 0;
-        }
         div.axis {
             width: calc(100% - 40px);
             height: 30px;
             margin-top: 20px;
             margin-left: 20px;
             margin-right: 20px;
-            /*outline: 2px solid black;*/
             overflow-x: hidden;
         }
-        div.chart {
+        div.ultra-chart {
             width: calc(100% - 40px);
             height: 100px;
             margin-left: 20px;
             margin-right: 20px;
             padding: 0px;
-            /*outline: 2px solid black;*/
             overflow-x: hidden;
+        }
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            /*font-size: 1.33em;*/
+        }
+
+        form {
+            margin: 50px auto;
+            padding: 30px;
+            /*box-shadow: 0px 5px 12px rgba(0, 0, 0, 0.2);*/
+            width: 400px;
+        }
+
+        h2 {
+            margin: 0 0 16px 0;
+            padding: 0;
+        }
+
+        input,
+        label {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            outline: none;
+        }
+
+        input[type="text"] {
+            font-size: 1.25em;
+            padding: 0 0 5px 0;
+            z-index: 10;
+            background: transparent;
+            margin-bottom: 0.5em;
+            border: none;
+            border-bottom: 2px solid black;
+        }
+
+        label {
+            display: inline-block;
+            margin: 0 auto;
+            padding: 0 0 5px 0;
+            transition: all 0.25s ease-in-out;
+            z-index: 1;
+            top: 30px;
+        }
+
+        input[type="submit"] {
+            cursor: pointer;
+            margin: 1.33em auto;
+            width: 100%;
+            padding: 10px 0;
+            border: 1px solid black;
+        }
+
+        .filled label {
+            top: 0;
+            font-size: 0.8em;
+        }
+        button#submit-query {
+            font-size: 12px;
+            margin: 5px;
         }
     </style>
 </head>
 <body>
+    <form>
+        <div class="field">
+            <label for="chromosome">Chromosome</label>
+            <input type="text" name="chromosome" id="chromosome">
+        </div>
+
+        <div class="field">
+            <label for="start">Start</label>
+            <input type="text" name="start" id="start">
+        </div>
+
+        <div class="field">
+            <label for="end">End</label>
+            <input type="text" name="end" id="end">
+        </div>
+        <button id='submit-query' type="button">Submit</button>
+    </form>
+
     <div class="axis"></div>
-    <div id="example-1" class="chart ucsc-chart"></div>
-    <div>
-        <p>
-            <label for="chr">Chr:</label>
-            <input type="text" id="chr" name="chr" value="1"><br>
-        </p>
+    <div id="ultra-chart" class="ultra-chart"></div>
 
-        <p>
-            <label for="start">Start:</label>
-            <input type="text" id="start" name="start" value="20000"><br>
-        </p>
+    <script>
+        $("form input").on("blur input focus", function() {
+            var $field = $(this).closest(".field");
+            if (this.value) {
+                $field.addClass("filled");
+            } else {
+                $field.removeClass("filled");
+            }
+        });
 
-        <p>
-            <label for="end">End:</label>
-            <input type="text" id="end" name="end" value="30000"><br><br>
-        </p>
-        <button id='submit-query'>Submit query</button><br>
-
-        <br>
-        <br>
-
-        <p>
-            <label for="start">Start:</label>
-            <input type="text" id="jump-start" name="start" value="40000"><br>
-        </p>
-
-        <p>
-            <label for="end">End:</label>
-            <input type="text" id="jump-end" name="end" value="50000"><br><br>
-        </p>
-        <button id='zoom-jump'>Jump</button><br>
-    </div>
+        $("form input").on("focus", function() {
+            var $field = $(this).closest(".field");
+            if (this) {
+                $field.addClass("filled");
+            } else {
+                $field.removeClass("filled");
+            }
+        });
+    </script>
     <script src="main.js"></script>
-
 </body>
 </html>

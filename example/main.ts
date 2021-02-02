@@ -12,7 +12,7 @@ window.onresize = () => resizeController.trigger();
 let charts: Chart<any>[] = [];
 
 const axis = new AxisChart({selector: '.axis'});
-const ultraChart = new UltraTrackChart({selector: '.ucsc-chart', binHeight: 24});
+const ultraChart = new UltraTrackChart({selector: '.ultra-chart', binHeight: 24});
 
 charts.push(axis);
 charts.push(ultraChart);
@@ -24,6 +24,7 @@ resizeController.addComponent(axis);
 resizeController.addComponent(ultraChart);
 
 function submitQuery() {
+    console.log("heyoo");
     const start = parseInt((<HTMLInputElement>document.getElementById('start')).value);
     const end = parseInt((<HTMLInputElement>document.getElementById('end')).value);
     fetch(`https://sodaviz.cs.umt.edu/ULTRAData/range?start=${start}&end=${end}`)
@@ -83,4 +84,21 @@ function zoomJump(): void {
     zoomController.zoomToRange(start, end);
 }
 
-document.getElementById('submit-query')!.addEventListener('click', submitQuery);
+function checkUrl(): void {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    // console.log(urlParams.get('chromosome'));
+    // console.log(urlParams.get('start'));
+    // console.log(urlParams.get('end'));
+
+}
+
+const submitButton = document.getElementById('submit-query')!;
+console.log(submitButton);
+if (submitButton !== undefined) {
+    submitButton.addEventListener('click', submitQuery);
+}
+else {
+    throw("Can't find submit button");
+}
+// checkUrl();
