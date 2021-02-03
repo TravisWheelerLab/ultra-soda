@@ -1,5 +1,4 @@
 import * as soda from '@traviswheelerlab/soda'
-import * as $ from 'jquery';
 import {UltraTrackChart} from 'ultra-soda'
 import {ZoomController, ResizeController, Chart, AxisChart} from '@traviswheelerlab/soda'
 import {UltraTrackChartRenderParams} from "../src/ultra-chart";
@@ -25,9 +24,10 @@ resizeController.addComponent(axis);
 resizeController.addComponent(ultraChart);
 
 function submitQuery() {
-    console.log("heyoo");
+    const chr = (<HTMLInputElement>document.getElementById('chromosome')).value;
     const start = parseInt((<HTMLInputElement>document.getElementById('start')).value);
     const end = parseInt((<HTMLInputElement>document.getElementById('end')).value);
+    setUrl(chr, `${start}`, `${end}`);
     fetch(`https://sodaviz.cs.umt.edu/ULTRAData/range?start=${start}&end=${end}`)
         .then((data) => data.text())
         .then((res) => render(res));
@@ -85,14 +85,28 @@ function zoomJump(): void {
     zoomController.zoomToRange(start, end);
 }
 
+function setUrl(chr: string, start: string, end: string): void {
+    const params = new URLSearchParams(location.search);
+    params.set('chromosome', chr);
+    params.set('start', start);
+    params.set('end', end);
+    window.history.replaceState({}, '', `${location.pathname}?${params}`);
+}
+
 function checkUrl(): void {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
+
+    let chrSet = false;
+    let startSet = false;
+    let endSet = false;
+
     let chromosome = urlParams.get('chromosome');
     if (chromosome !== null) {
         let chromInput = <HTMLInputElement>document.getElementById('chromosome');
         if (chromInput !== undefined) {
             chromInput.value = chromosome;
+            chrSet = true;
         }
         else {
             throw("Can't find chromosome input");
@@ -104,6 +118,7 @@ function checkUrl(): void {
         let startInput = <HTMLInputElement>document.getElementById('start');
         if (startInput !== undefined) {
             startInput.value = start;
+            startSet = true;
         }
         else {
             throw("Can't find start input");
@@ -115,10 +130,15 @@ function checkUrl(): void {
         let endInput = <HTMLInputElement>document.getElementById('end');
         if (endInput !== undefined) {
             endInput.value = end;
+            endSet = true;
         }
         else {
             throw("Can't find end input");
         }
+    }
+
+    if (chrSet && startSet && endSet) {
+        submitQuery();
     }
 }
 
@@ -129,33 +149,5 @@ if (submitButton !== undefined) {
 else {
     throw("Can't find submit button");
 }
-//
-// function toggleFileld(element: HTMLElement): void {
-//     var $field = $(element).closest(".field");
-//     if (element.value) {
-//         $field.addClass("filled");
-//     } else {
-//         $field.removeClass("filled");
-//     }
-// }
-//
-// $("form input").on("blur input focus", function() {
-//     var $field = $(this).closest(".field");
-//     //@ts-ignore
-//     if (this.value) {
-//         $field.addClass("filled");
-//     } else {
-//         $field.removeClass("filled");
-//     }
-// });
-//
-// $("form input").on("focus", function() {
-//     var $field = $(this).closest(".field");
-//     if (this) {
-//         $field.addClass("filled");
-//     } else {
-//         $field.removeClass("filled");
-//     }
-// });
 
 checkUrl();
