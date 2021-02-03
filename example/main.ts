@@ -28,8 +28,8 @@ function submitQuery() {
     const chr = (<HTMLInputElement>document.getElementById('chromosome')).value;
     const start = parseInt((<HTMLInputElement>document.getElementById('start')).value);
     const end = parseInt((<HTMLInputElement>document.getElementById('end')).value);
-    setUrl(chr, `${start}`, `${end}`);
-    fetch(`https://sodaviz.cs.umt.edu/ULTRAData/range?start=${start}&end=${end}`)
+    setUrl(bed, chr, `${start}`, `${end}`);
+    fetch(`https://sodaviz.cs.umt.edu/ULTRAData/${bed}/${chr}/range?start=${start}&end=${end}`)
         .then((data) => data.text())
         .then((res) => render(res));
 }
@@ -86,8 +86,9 @@ function zoomJump(): void {
     zoomController.zoomToRange(start, end);
 }
 
-function setUrl(chr: string, start: string, end: string): void {
+function setUrl(bed: string, chr: string, start: string, end: string): void {
     const params = new URLSearchParams(location.search);
+    params.set('bed', bed);
     params.set('chromosome', chr);
     params.set('start', start);
     params.set('end', end);
@@ -98,9 +99,22 @@ function checkUrl(): void {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
 
+    let bedSet = false;
     let chrSet = false;
     let startSet = false;
     let endSet = false;
+
+    let bed = urlParams.get('bed');
+    if (bed !== null) {
+        let bedInput = <HTMLInputElement>document.getElementById('bed');
+        if (bedInput !== undefined) {
+            bedInput.value = bed;
+            bedSet = true;
+        }
+        else {
+            throw("Can't find bed input");
+        }
+    }
 
     let chromosome = urlParams.get('chromosome');
     if (chromosome !== null) {
@@ -138,7 +152,7 @@ function checkUrl(): void {
         }
     }
 
-    if (chrSet && startSet && endSet) {
+    if (bedSet && chrSet && startSet && endSet) {
         submitQuery();
     }
 }
