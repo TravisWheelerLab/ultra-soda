@@ -7,8 +7,12 @@ import {
     AnnotationGroup,
     AnnotationGroupConfig
 } from '@traviswheelerlab/soda'
-import {UltraTrackChart, UltraTrackChartRenderParams} from "../src/ultra-chart";
-import {UltraAnnConfig, UltraAnnotation} from "../src/ultra-annotation";
+import {
+    UltraTrackChart,
+    UltraTrackChartRenderParams,
+    UltraAnnConfig,
+    UltraAnnotation
+} from "ultra-soda";
 
 let zoomController = new ZoomController();
 let resizeController = new ResizeController();
@@ -35,6 +39,18 @@ function submitQuery() {
     const start = parseInt((<HTMLInputElement>document.getElementById('start')).value);
     const end = parseInt((<HTMLInputElement>document.getElementById('end')).value);
     setUrl(bed, chr, `${start}`, `${end}`);
+    if (bed == '10') {
+        ultraChart.setMaxPeriod(10)
+    }
+    else if (bed == '100') {
+        ultraChart.setMaxPeriod(100);
+    }
+    else if (bed == '500') {
+        ultraChart.setMaxPeriod(500);
+    }
+    else if (bed == '4k') {
+        ultraChart.setMaxPeriod(4000);
+    }
     fetch(`https://sodaviz.cs.umt.edu/ULTRAData/${bed}/${chr}/range?start=${start}&end=${end}`)
         .then((data) => data.text())
         .then((res) => render(res));
@@ -48,6 +64,8 @@ function render(data: string): void {
     let groupId = 0;
 
     let groups = soda.customBedParse(data, (bedObj) => {
+        id++;
+        let subId = 0;
         let names: string[] = bedObj.name.split('/');
         if (names.length !== bedObj.blockCount) {
             throw(`Error in GmodBed object, ${bedObj}`);
@@ -62,11 +80,11 @@ function render(data: string): void {
 
             if (nREMatch) {
                 repeatClass = 'n';
-                period = nREMatch[0].length;
+                period = nREMatch[1].length;
             }
             else if (lowREMatch) {
                 repeatClass = 'low_complexity';
-                period = parseInt(lowREMatch[1]);
+                period = parseInt(lowREMatch[0]);
             }
             else if (repREMatch) {
                 repeatClass = 'repetitive';
@@ -74,7 +92,7 @@ function render(data: string): void {
             }
 
             let conf: UltraAnnConfig = {
-                id: `ULTRA.${id++}`,
+                id: `ULTRA.${id}.${subId++}`,
                 x: bedObj.chromStart + bedObj.blockStarts[i],
                 w: bedObj.blockSizes[i],
                 y: 0,
@@ -85,6 +103,7 @@ function render(data: string): void {
             }
             groupAnn.push(new UltraAnnotation(conf));
         }
+
         let groupConf: AnnotationGroupConfig<UltraAnnotation> = {
             id: `group.${groupId++}`,
             group: groupAnn,
