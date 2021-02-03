@@ -15,7 +15,7 @@ export class UltraTrackChart extends TrackChart<UltraTrackChartRenderParams> {
 
     constructor(config: ChartConfig) {
         super(config);
-        this.scoreColorScale = d3.scaleSequential(d3.interpolateGreys)
+        this.scoreColorScale = d3.scaleSequential(d3.interpolateCividis)
             .domain([0, 30000]);
         let repeatClasses = ['n', 'low_complexity', 'repetitive'];
         this.classColorScale = d3.scaleOrdinal(d3.schemeCategory10)
@@ -27,11 +27,12 @@ export class UltraTrackChart extends TrackChart<UltraTrackChartRenderParams> {
     }
 
     protected renderRepeats(repeats: UltraAnnotation[]) {
-        console.log(repeats);
         const conf: soda.RectangleConfig<UltraAnnotation, UltraTrackChart> = {
             selector: 'repeats',
+            strokeWidth: () => 1,
             strokeColor: (a, c) => c.classColorScale(a.repeatClass),
             fillColor: (a, c) => <string>c.scoreColorScale(a.score),
+            fillOpacity: () => 0.5,
         };
         soda.rectangleGlyph(this, repeats, conf);
     }

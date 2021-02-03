@@ -31,7 +31,7 @@
             overflow-x: hidden;
         }
 
-        .field, .buttons {
+        .field, .buttons, div.info {
             position: relative;
             margin-left: 25%;
             margin-right: 25%;
@@ -60,28 +60,13 @@
             color: white;
         }
 
-
-        /*.button1 {*/
-        /*    background-color: white;*/
-        /*    color: black;*/
-        /*    border: 2px solid var(--primary-color);*/
-        /*}*/
-
-        /*.button1:hover {*/
-        /*    background-color: var(--primary-color);*/
-        /*    color: white;*/
-        /*}*/
-
-        /*.button2 {*/
-        /*    background-color: white;*/
-        /*    color: black;*/
-        /*    border: 2px solid var(--primary-color);*/
-        /*}*/
-
-        /*.button2:hover {*/
-        /*    background-color: var(--primary-color);*/
-        /*    color: white;*/
-        /*}*/
+        .field .drop-inputText{
+            width: 100px;
+            outline: none;
+            border:none;
+            border-bottom: 1px solid #777;
+            box-shadow: none !important;
+        }
 
         .field .inputText{
             width: 100%;
@@ -94,6 +79,14 @@
         .field .inputText:focus{
             border-color: var(--primary-color);
             border-width: medium medium 2px;
+        }
+
+        .field .drop-floating-label {
+            position: absolute;
+            top: 10px;
+            left: 27px;
+            font-size: 13px;
+            opacity: 0.5;
         }
 
         .field .floating-label {
@@ -113,7 +106,8 @@
             opacity: 0.5;
         }
 
-        .field input:focus ~.floating-label {
+        .field input:focus ~.floating-label,
+        .field select:focus ~.drop-floating-label {
             color: var(--primary-color);
             opacity: 1.0;
         }
@@ -121,7 +115,38 @@
     </style>
 </head>
 <body>
+    <div class='info'>
+        <h1>
+            ULTRA Annotations
+        </h1>
+        <p>
+            View ULTRA annotations across T2T V1.0.
+            ____ colored boxes represent short tandem repeats with known consensus patterns.
+            ____ colored boxes represent well conserved repeats.
+            _____ colored boxes represent degenerate repeats and low complexity sequence.
+            <br><br>
+            ULTRA10 settings: Max period: 10. Max consecutive insertions: 5, Max consecutive deletions: 5.
+            <br>
+            ULTRA100 settings: Max period: 100. Max consecutive insertions: 5, Max consecutive deletions: 5.
+            <br>
+            ULTRA500 settings: Max period: 500. Max consecutive insertions: 5, Max consecutive deletions: 5.
+            <br>
+            ULTRA 4k settings: Max period: 4000. Max consecutive insertions: 2, Max consecutive deletions: 2.
+            <br>
+        </p>
+    </div>
+
     <form>
+        <div class="field">
+            <select type="text" id="bed" class="drop-inputText" required/>
+                <option value="10">ULTRA10</option>
+                <option value="100">ULTRA100</option>
+                <option value="500">ULTRA500</option>
+                <option value="4k">ULTRA4k</option>
+            </select>
+            <span class="drop-floating-label">BED</span>
+        </div>
+
         <div class="field">
             <input type="text" id="chromosome" class="inputText" required/>
             <span class="floating-label">Chromosome</span>

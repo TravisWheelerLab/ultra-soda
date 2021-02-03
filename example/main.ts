@@ -24,6 +24,7 @@ resizeController.addComponent(axis);
 resizeController.addComponent(ultraChart);
 
 function submitQuery() {
+    const bed = (<HTMLInputElement>document.getElementById('bed')).value;
     const chr = (<HTMLInputElement>document.getElementById('chromosome')).value;
     const start = parseInt((<HTMLInputElement>document.getElementById('start')).value);
     const end = parseInt((<HTMLInputElement>document.getElementById('end')).value);
