@@ -16,10 +16,15 @@ export class UltraTrackChart extends TrackChart<UltraTrackChartRenderParams> {
     constructor(config: ChartConfig) {
         super(config);
         this.scoreColorScale = d3.scaleSequential(d3.interpolateCividis)
-            .domain([0, 30000]);
+            .domain([0, 100]);
         let repeatClasses = ['n', 'low_complexity', 'repetitive'];
         this.classColorScale = d3.scaleOrdinal(d3.schemeCategory10)
             .domain(repeatClasses);
+    }
+
+    public setMaxPeriod(max: number): void {
+        this.scoreColorScale = d3.scaleSequential(d3.interpolateCividis)
+            .domain([0, max]);
     }
 
     protected inRender(params: UltraTrackChartRenderParams): void {

@@ -1,7 +1,13 @@
 import * as soda from '@traviswheelerlab/soda'
-import {UltraTrackChart} from 'ultra-soda'
-import {ZoomController, ResizeController, Chart, AxisChart} from '@traviswheelerlab/soda'
-import {UltraTrackChartRenderParams} from "../src/ultra-chart";
+import {
+    ZoomController,
+    ResizeController,
+    Chart,
+    AxisChart,
+    AnnotationGroup,
+    AnnotationGroupConfig
+} from '@traviswheelerlab/soda'
+import {UltraTrackChart, UltraTrackChartRenderParams} from "../src/ultra-chart";
 import {UltraAnnConfig, UltraAnnotation} from "../src/ultra-annotation";
 
 let zoomController = new ZoomController();
@@ -35,38 +41,68 @@ function submitQuery() {
 }
 
 function render(data: string): void {
-    // let ann = soda.bed6Parse(data);
-    let nRE = new RegExp(/\(\w*\)n/);
-    let lowRE = new RegExp(/low_complexity\(\w*\)/);
-    let repRE = new RegExp(/repetitive\(\w*\)/);
+    const nRE = /(?<seq>[ACGT*]+)/g
+    const lowRE = /low_complexity_\((?<period>\d+)\)/g
+    const repRE = /repetitive\((?<period>\d+)\)/g
     let id = 0;
-    let ann = soda.customBedParse<UltraAnnotation>(data, (bedObj) => {
-        let repeatClass: string;
-        if (bedObj.name.search(nRE) > -1) {
-            repeatClass = 'n';
+    let groupId = 0;
+
+    let groups = soda.customBedParse(data, (bedObj) => {
+        let names: string[] = bedObj.name.split('/');
+        if (names.length !== bedObj.blockCount) {
+            throw(`Error in GmodBed object, ${bedObj}`);
         }
-        else if (bedObj.name.search(lowRE) > -1) {
-            repeatClass = 'low_complexity';
+        let repeatClass = '';
+        let period = 0;
+        let groupAnn: UltraAnnotation[] = [];
+        for (const [i, name] of names.entries()) {
+            const nREMatch = nRE.exec(name);
+            const lowREMatch = lowRE.exec(name);
+            const repREMatch = repRE.exec(name);
+
+            if (nREMatch) {
+                repeatClass = 'n';
+                period = nREMatch[0].length;
+            }
+            else if (lowREMatch) {
+                repeatClass = 'low_complexity';
+                period = parseInt(lowREMatch[1]);
+            }
+            else if (repREMatch) {
+                repeatClass = 'repetitive';
+                period = parseInt(repREMatch[1]);
+            }
+
+            let conf: UltraAnnConfig = {
+                id: `ULTRA.${id++}`,
+                x: bedObj.chromStart + bedObj.blockStarts[i],
+                w: bedObj.blockSizes[i],
+                y: 0,
+                h: 0,
+                score: bedObj.score,
+                period: period,
+                repeatClass: repeatClass,
+            }
+            groupAnn.push(new UltraAnnotation(conf));
         }
-        else if (bedObj.name.search(repRE) > -1) {
-            repeatClass = 'repetitive';
-        }
-        else {
-            repeatClass = '';
-        }
-        let conf: UltraAnnConfig = {
-            id: `BED6.${id++}`,
+        let groupConf: AnnotationGroupConfig<UltraAnnotation> = {
+            id: `group.${groupId++}`,
+            group: groupAnn,
             x: bedObj.chromStart,
             w: bedObj.chromEnd - bedObj.chromStart,
             y: 0,
             h: 0,
-            score: bedObj.score,
-            repeatClass: repeatClass,
         }
-        return new UltraAnnotation(conf);
+
+        return new AnnotationGroup(groupConf);
     });
 
-    let n = soda.intervalGraphLayout(ann);
+    let n = soda.intervalGraphLayout(groups);
+
+    let ann: UltraAnnotation[] = [];
+    for (const group of groups) {
+        ann = ann.concat(group.group);
+    }
     let first = ann.reduce((prev, curr) => prev.x < curr.x ? prev : curr);
     let last = ann.reduce((prev, curr) => (prev.x + prev.w) > (curr.x + curr.w) ? prev : curr);
     let renderParams: UltraTrackChartRenderParams = {
