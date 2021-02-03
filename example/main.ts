@@ -57,16 +57,17 @@ function submitQuery() {
 }
 
 function render(data: string): void {
-    const nRE = /(?<seq>[ACGT*]+)/g
-    const lowRE = /low_complexity_\((?<period>\d+)\)/g
-    const repRE = /repetitive\((?<period>\d+)\)/g
     let id = 0;
     let groupId = 0;
 
     let groups = soda.customBedParse(data, (bedObj) => {
+        const nRE = /(?<seq>[ACGT*]+)/;
+        const lowRE = /low_complexity_\((?<period>\d+)\)/;
+        const repRE = /repetitive\((?<period>\d+)\)/;
+
         id++;
         let subId = 0;
-        let names: string[] = bedObj.name.split('/');
+        const names: string[] = bedObj.name.split('/');
         if (names.length !== bedObj.blockCount) {
             throw(`Error in GmodBed object, ${bedObj}`);
         }
@@ -77,18 +78,24 @@ function render(data: string): void {
             const nREMatch = nRE.exec(name);
             const lowREMatch = lowRE.exec(name);
             const repREMatch = repRE.exec(name);
-
+            let seq = '';
             if (nREMatch) {
                 repeatClass = 'n';
-                period = nREMatch[1].length;
+                period = nREMatch[0].length;
+                seq = nREMatch[0];
             }
             else if (lowREMatch) {
                 repeatClass = 'low_complexity';
-                period = parseInt(lowREMatch[0]);
+                period = parseInt(lowREMatch[1]);
+                seq = 'Low complexity';
             }
             else if (repREMatch) {
                 repeatClass = 'repetitive';
                 period = parseInt(repREMatch[1]);
+                seq = 'Repetitive';
+            }
+            else {
+                throw(`Failure to match any regex: ${name}`);
             }
 
             let conf: UltraAnnConfig = {
@@ -100,6 +107,7 @@ function render(data: string): void {
                 score: bedObj.score,
                 period: period,
                 repeatClass: repeatClass,
+                seq: seq,
             }
             groupAnn.push(new UltraAnnotation(conf));
         }

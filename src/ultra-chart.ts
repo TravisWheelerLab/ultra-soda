@@ -23,7 +23,7 @@ export class UltraTrackChart extends TrackChart<UltraTrackChartRenderParams> {
     }
 
     public setMaxPeriod(max: number): void {
-        this.periodColorScale = d3.scaleSequential(d3.interpolateCividis)
+        this.periodColorScale = d3.scaleSequential(d3.interpolateViridis)
             .domain([0, max]);
     }
 
@@ -44,11 +44,10 @@ export class UltraTrackChart extends TrackChart<UltraTrackChartRenderParams> {
     }
 
     protected bindTooltips(repeats: UltraAnnotation[]) {
-        console.log("suh");
         for (const ann of repeats) {
             const conf: soda.TooltipConfig<UltraAnnotation, UltraTrackChart> = {
                 ann: ann,
-                text: (a) => `[${a.id}](${a.period})<${a.score}>: ${a.x} - ${a.x + a.w}`,
+                text: (a) => `${a.seq}(${a.period}) | ${a.score} | ${a.x} - ${a.x + a.w}`,
             }
             soda.tooltip(this, conf);
         }
