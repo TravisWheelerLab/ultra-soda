@@ -5,13 +5,13 @@ import {
     Chart,
     AxisChart,
     AnnotationGroup,
-    AnnotationGroupConfig
 } from '@traviswheelerlab/soda'
 import {
     UltraTrackChart,
     UltraTrackChartRenderParams,
     UltraAnnConfig,
-    UltraAnnotation
+    UltraAnnotation,
+    UltraBedParse
 } from "ultra-soda";
 
 let zoomController = new ZoomController();
@@ -32,6 +32,17 @@ zoomController.addComponent(ultraChart);
 
 resizeController.addComponent(axis);
 resizeController.addComponent(ultraChart);
+
+initButtons();
+checkUrl();
+
+function reset() {
+    (<HTMLInputElement>document.getElementById('bed')).value = '10';
+    (<HTMLInputElement>document.getElementById('chromosome')).value = '';
+    (<HTMLInputElement>document.getElementById('start')).value = '';
+    (<HTMLInputElement>document.getElementById('end')).value = '';
+    setUrl('10', '', '', '');
+}
 
 function submitQuery() {
     const bed = (<HTMLInputElement>document.getElementById('bed')).value;
@@ -57,73 +68,7 @@ function submitQuery() {
 }
 
 function render(data: string): void {
-    let id = 0;
-    let groupId = 0;
-
-    let groups = soda.customBedParse(data, (bedObj) => {
-        const nRE = /(?<seq>[ACGT*]+)/;
-        const lowRE = /low_complexity_\((?<period>\d+)\)/;
-        const repRE = /repetitive\((?<period>\d+)\)/;
-
-        id++;
-        let subId = 0;
-        const names: string[] = bedObj.name.split('/');
-        if (names.length !== bedObj.blockCount) {
-            throw(`Error in GmodBed object, ${bedObj}`);
-        }
-        let repeatClass = '';
-        let period = 0;
-        let groupAnn: UltraAnnotation[] = [];
-        for (const [i, name] of names.entries()) {
-            const nREMatch = nRE.exec(name);
-            const lowREMatch = lowRE.exec(name);
-            const repREMatch = repRE.exec(name);
-            let seq = '';
-            if (nREMatch) {
-                repeatClass = 'n';
-                period = nREMatch[0].length;
-                seq = nREMatch[0];
-            }
-            else if (lowREMatch) {
-                repeatClass = 'low_complexity';
-                period = parseInt(lowREMatch[1]);
-                seq = 'Low complexity';
-            }
-            else if (repREMatch) {
-                repeatClass = 'repetitive';
-                period = parseInt(repREMatch[1]);
-                seq = 'Repetitive';
-            }
-            else {
-                throw(`Failure to match any regex: ${name}`);
-            }
-
-            let conf: UltraAnnConfig = {
-                id: `ULTRA.${id}.${subId++}`,
-                x: bedObj.chromStart + bedObj.blockStarts[i],
-                w: bedObj.blockSizes[i],
-                y: 0,
-                h: 0,
-                score: bedObj.score,
-                period: period,
-                repeatClass: repeatClass,
-                seq: seq,
-            }
-            groupAnn.push(new UltraAnnotation(conf));
-        }
-
-        let groupConf: AnnotationGroupConfig<UltraAnnotation> = {
-            id: `group.${groupId++}`,
-            group: groupAnn,
-            x: bedObj.chromStart,
-            w: bedObj.chromEnd - bedObj.chromStart,
-            y: 0,
-            h: 0,
-        }
-
-        return new AnnotationGroup(groupConf);
-    });
-
+    let groups = soda.customBedParse<AnnotationGroup<UltraAnnotation>>(data, UltraBedParse);
     let n = soda.intervalGraphLayout(groups);
 
     let ann: UltraAnnotation[] = [];
@@ -140,13 +85,7 @@ function render(data: string): void {
     }
     axis.render(renderParams);
     ultraChart.render(renderParams);
-}
-
-function zoomJump(): void {
-    const start = parseInt((<HTMLInputElement>document.getElementById('jump-start')).value);
-    const end = parseInt((<HTMLInputElement>document.getElementById('jump-end')).value);
-
-    zoomController.zoomToRange(start, end);
+    zoomController.zoomToRange(renderParams.queryStart, renderParams.queryEnd);
 }
 
 function setUrl(bed: string, chr: string, start: string, end: string): void {
@@ -220,12 +159,18 @@ function checkUrl(): void {
     }
 }
 
-const submitButton = document.getElementById('submit-query')!;
-if (submitButton !== undefined) {
-    submitButton.addEventListener('click', submitQuery);
-}
-else {
-    throw("Can't find submit button");
-}
+function initButtons(): void {
+    const submitButton = document.getElementById('submit-query')!;
+    if (submitButton !== undefined) {
+        submitButton.addEventListener('click', submitQuery);
+    } else {
+        throw("Can't find submit button");
+    }
 
-checkUrl();
+    const resetButton = document.getElementById('reset')!;
+    if (resetButton !== undefined) {
+        resetButton.addEventListener('click', reset);
+    } else {
+        throw("Can't find reset button");
+    }
+}

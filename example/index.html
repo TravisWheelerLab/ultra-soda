@@ -112,6 +112,33 @@
             opacity: 1.0;
         }
 
+        .autocomplete {
+            background: white;
+            z-index: 1000;
+            font: 14px/22px "-apple-system", BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: auto;
+            box-sizing: border-box;
+            border: 1px solid rgba(50, 50, 50, 0.6);
+        }
+
+        .autocomplete * {
+            font: inherit;
+        }
+
+        .autocomplete > div {
+            padding: 0 4px;
+        }
+
+        .autocomplete .group {
+            background: #eee;
+        }
+
+        .autocomplete > div:hover:not(.group),
+        .autocomplete > div.selected {
+            background: #81ca91;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -123,7 +150,7 @@
 
     <form>
         <div class="field">
-            <select type="text" id="bed" class="drop-inputText" required/>
+            <select id="bed" class="drop-inputText" required>
                 <option value="10">ULTRA10</option>
                 <option value="100">ULTRA100</option>
                 <option value="500">ULTRA500</option>
@@ -133,10 +160,34 @@
         </div>
 
         <div class="field">
-            <input type="text" id="chromosome" class="inputText" required/>
-            <span class="floating-label">Chromosome</span>
+            <select id="chromosome" class="drop-inputText" required>
+                <option value="chr1">chr1</option>
+                <option value="chr2">chr2</option>
+                <option value="chr3">chr3</option>
+                <option value="chr4">chr4</option>
+                <option value="chr5">chr5</option>
+                <option value="chr6">chr6</option>
+                <option value="chr7">chr7</option>
+                <option value="chr8">chr8</option>
+                <option value="chr9">chr9</option>
+                <option value="chr10">chr10</option>
+                <option value="chr12">chr11</option>
+                <option value="chr13">chr12</option>
+                <option value="chr14">chr13</option>
+                <option value="chr15">chr14</option>
+                <option value="chr16">chr15</option>
+                <option value="chr17">chr16</option>
+                <option value="chr18">chr17</option>
+                <option value="chr19">chr18</option>
+                <option value="chr20">chr19</option>
+                <option value="chr21">chr20</option>
+                <option value="chr22">chr21</option>
+                <option value="chr23">chr22</option>
+                <option value="chrM">chrM</option>
+                <option value="chrX">chrX</option>
+            </select>
+            <span class="drop-floating-label">Chromosome</span>
         </div>
-
         <div class="field">
             <input type="text" id="start" class="inputText" required/>
             <span class="floating-label">Start</span>
@@ -152,10 +203,8 @@
             <button id='reset' type="button" class="button button2">Reset</button>
         </div>
     </form>
-
     <div class="axis"></div>
     <div id="ultra-chart" class="ultra-chart"></div>
-
-    <script src="main.js"></script>
+     <script src="main.js"></script>
 </body>
 </html>
