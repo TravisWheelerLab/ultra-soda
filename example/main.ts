@@ -1,48 +1,57 @@
 import * as soda from '@traviswheelerlab/soda'
-import {
-    ZoomController,
-    ResizeController,
-    Chart,
-    AxisChart,
-    AnnotationGroup,
-} from '@traviswheelerlab/soda'
-import {
-    UltraTrackChart,
-    UltraTrackChartRenderParams,
-    UltraAnnConfig,
-    UltraAnnotation,
-    UltraBedParse
-} from "ultra-soda";
+import * as us from 'ultra-soda'
 
-let zoomController = new ZoomController();
-let resizeController = new ResizeController();
+import {ChrQuery} from "../src/ultra-callbacks";
 
-window.onresize = () => resizeController.trigger();
+let trackRack = new soda.TrackRack<ChrQuery>({selector: '#charts', queryBuilder: us.queryBuilder, widthThresholds: [10000]});
+window.onresize = () => trackRack.resizeController.trigger();
 
-let charts: Chart<any>[] = [];
+const axis = new soda.AxisChart({});
+const ultra10 = new us.UltraTrackChart({binHeight: 24, maxPeriod: 10});
+const ultra100 = new us.UltraTrackChart({binHeight: 24, maxPeriod: 100});
+const ultra500 = new us.UltraTrackChart({binHeight: 24, maxPeriod: 500});
+const ultra4k = new us.UltraTrackChart({binHeight: 24, maxPeriod: 4000});
 
-const axis = new AxisChart({selector: '.axis'});
-const ultraChart = new UltraTrackChart({selector: '.ultra-chart', binHeight: 24});
+trackRack.add(axis,[
+        (chart, query) => {
+        const renderParams = {
+            queryStart: query.start,
+            queryEnd: query.end,
+        }
+        axis.render(renderParams);
+    },
+    (chart, query) => {
+        const renderParams = {
+            queryStart: query.start,
+            queryEnd: query.end,
+        }
+        axis.render(renderParams);
+    }
+    ]);
 
-charts.push(axis);
-charts.push(ultraChart);
-
-zoomController.addComponent(axis);
-zoomController.addComponent(ultraChart);
-
-resizeController.addComponent(axis);
-resizeController.addComponent(ultraChart);
+trackRack.add(ultra10, [
+        (chart, query) => us.renderCallback(chart, '10', query, us.renderHighDetail),
+        (chart, query) => us.renderCallback(chart, '10', query, us.renderLowDetail),
+    ],
+    'BED: ultra10');
+trackRack.add(ultra100, [
+        (chart, query) => us.renderCallback(chart, '100', query, us.renderHighDetail),
+        (chart, query) => us.renderCallback(chart, '100', query, us.renderLowDetail)
+    ],
+    'BED: ultra100');
+trackRack.add(ultra500, [
+        (chart, query) => us.renderCallback(chart, '500', query, us.renderHighDetail),
+        (chart, query) => us.renderCallback(chart, '500', query, us.renderLowDetail)
+    ],
+    'BED: ultra500');
+trackRack.add(ultra4k, [
+        (chart, query) => us.renderCallback(chart, '4k', query, us.renderHighDetail),
+        (chart, query) => us.renderCallback(chart, '4k', query, us.renderLowDetail)
+    ],
+    'BED: ultra4k');
 
 initButtons();
 checkUrl();
-
-function reset() {
-    (<HTMLInputElement>document.getElementById('bed')).value = '10';
-    (<HTMLInputElement>document.getElementById('chromosome')).value = '';
-    (<HTMLInputElement>document.getElementById('start')).value = '';
-    (<HTMLInputElement>document.getElementById('end')).value = '';
-    setUrl('10', '', '', '');
-}
 
 function submitQuery() {
     const bed = (<HTMLInputElement>document.getElementById('bed')).value;
@@ -50,42 +59,14 @@ function submitQuery() {
     const start = parseInt((<HTMLInputElement>document.getElementById('start')).value);
     const end = parseInt((<HTMLInputElement>document.getElementById('end')).value);
     setUrl(bed, chr, `${start}`, `${end}`);
-    if (bed == '10') {
-        ultraChart.setMaxPeriod(10)
+    let query = {
+        start: start,
+        end: end,
+        chr: chr,
     }
-    else if (bed == '100') {
-        ultraChart.setMaxPeriod(100);
-    }
-    else if (bed == '500') {
-        ultraChart.setMaxPeriod(500);
-    }
-    else if (bed == '4k') {
-        ultraChart.setMaxPeriod(4000);
-    }
-    fetch(`https://sodaviz.cs.umt.edu/ULTRAData/${bed}/${chr}/range?start=${start}&end=${end}`)
-        .then((data) => data.text())
-        .then((res) => render(res));
-}
-
-function render(data: string): void {
-    let groups = soda.customBedParse<AnnotationGroup<UltraAnnotation>>(data, UltraBedParse);
-    let n = soda.intervalGraphLayout(groups);
-
-    let ann: UltraAnnotation[] = [];
-    for (const group of groups) {
-        ann = ann.concat(group.group);
-    }
-    let first = ann.reduce((prev, curr) => prev.x < curr.x ? prev : curr);
-    let last = ann.reduce((prev, curr) => (prev.x + prev.w) > (curr.x + curr.w) ? prev : curr);
-    let renderParams: UltraTrackChartRenderParams = {
-        repeats: ann,
-        maxY: n + 1,
-        queryStart: first.x,
-        queryEnd: last.x + last.w,
-    }
-    axis.render(renderParams);
-    ultraChart.render(renderParams);
-    zoomController.zoomToRange(renderParams.queryStart, renderParams.queryEnd);
+    trackRack.zoomController.setQueryRange(query.start, query.end)
+    trackRack.zoomController.setXScale()
+    trackRack.queryAndRender(query);
 }
 
 function setUrl(bed: string, chr: string, start: string, end: string): void {
@@ -173,4 +154,12 @@ function initButtons(): void {
     } else {
         throw("Can't find reset button");
     }
+}
+
+function reset() {
+    (<HTMLInputElement>document.getElementById('bed')).value = '10';
+    (<HTMLInputElement>document.getElementById('chromosome')).value = '';
+    (<HTMLInputElement>document.getElementById('start')).value = '';
+    (<HTMLInputElement>document.getElementById('end')).value = '';
+    setUrl('10', '', '', '');
 }

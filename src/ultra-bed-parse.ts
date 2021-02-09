@@ -4,7 +4,7 @@ import {UltraAnnConfig, UltraAnnotation} from "./ultra-annotation";
 let id = 0;
 let groupId = 0;
 
-export function UltraBedParse (bedObj: GmodBed): AnnotationGroup<UltraAnnotation> {
+export function UltraBedParseHigh (bedObj: GmodBed): AnnotationGroup<UltraAnnotation> {
     const nRE = /(?<seq>[ACGT*]+)/;
     const lowRE = /low_complexity_\((?<period>\d+)\)/;
     const repRE = /repetitive\((?<period>\d+)\)/;
@@ -67,3 +67,7 @@ export function UltraBedParse (bedObj: GmodBed): AnnotationGroup<UltraAnnotation
 
     return new AnnotationGroup(groupConf);
 }
+
+// export function UltraBedParseLow (bedObj: GmodBed): UltraAnnotation {
+//
+// }

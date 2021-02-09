@@ -1,8 +1,12 @@
 import * as d3 from 'd3';
 import * as soda from '@traviswheelerlab/soda';
 
-import {TrackChart, TrackChartRenderParams, ChartConfig, isCompactAnn} from "@traviswheelerlab/soda";
+import {TrackChart, TrackChartRenderParams, ChartConfig} from "@traviswheelerlab/soda";
 import {UltraAnnotation} from "./ultra-annotation";
+
+export interface UltraTrackChartConfig extends ChartConfig {
+    maxPeriod: number;
+}
 
 export interface UltraTrackChartRenderParams extends TrackChartRenderParams {
     maxY:       number;
@@ -13,10 +17,10 @@ export class UltraTrackChart extends TrackChart<UltraTrackChartRenderParams> {
     periodColorScale: d3.ScaleSequential<string>;
     classColorScale: d3.ScaleOrdinal<string, string>;
 
-    constructor(config: ChartConfig) {
+    constructor(config: UltraTrackChartConfig) {
         super(config);
         this.periodColorScale = d3.scaleSequential(d3.interpolateCividis)
-            .domain([0, 100]);
+            .domain([0, config.maxPeriod]);
         let repeatClasses = ['n', 'low_complexity', 'repetitive'];
         this.classColorScale = d3.scaleOrdinal(d3.schemeCategory10)
             .domain(repeatClasses);
