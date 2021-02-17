@@ -1,33 +1,29 @@
-import {AnnotationGroup, QueryParameters, ViewRange} from "../../soda";
-import * as soda from "../../soda";
+import * as soda from "@traviswheelerlab/soda";
 import {UltraTrackChart, UltraTrackChartRenderParams} from "./ultra-chart";
-import {UltraAnnotation} from "./ultra-annotation";
-import {UltraBedParseHigh} from "./ultra-bed-parse";
+import {UltraAnnotation, UltraAnnotationSegment} from "./ultra-annotation";
+import {UltraBed6Parse, UltraBed12Parse} from "./ultra-bed-parse";
 
-
-export interface ChrQuery extends QueryParameters {
+export interface UltraQuery extends soda.BufferedQueryParameters {
     chr: string,
 }
 
-export function queryBuilder(prevQuery: ChrQuery, view: ViewRange): ChrQuery {
+export function queryBuilder(prevQuery: UltraQuery, view: soda.ViewRange): UltraQuery {
     return {
         start: Math.ceil(view.start),
         end: Math.ceil(view.end),
+        buffStart: Math.ceil(view.start - view.width),
+        buffEnd: Math.ceil(view.end + view.width),
         chr: prevQuery.chr,
     }
 }
 
-export function renderCallback(chart: UltraTrackChart,
-                       bed: string,
-                       query: ChrQuery,
-                       renderCallback: (query: ChrQuery, res: string, chart: UltraTrackChart) => void): void {
-    fetch(`https://sodaviz.cs.umt.edu/ULTRAData/${bed}/${query.chr}/range?start=${query.start}&end=${query.end}`)
+export async function renderRepeats(chart: UltraTrackChart, query: UltraQuery, bed: string): Promise<void> {
+    let response = await fetch(`https://sodaviz.cs.umt.edu/ULTRAData/${bed}/${query.chr}/range?start=${query.buffStart}&end=${query.buffEnd}`)
         .then((data) => data.text())
-        .then((res) => renderCallback(query, res, chart));
-}
+        .then((res: string) => res);
 
-export function renderHighDetail(query: ChrQuery, response: string, chart: UltraTrackChart): void {
-    let groups = soda.customBedParse<AnnotationGroup<UltraAnnotation>>(response, UltraBedParseHigh);
+    let obj: soda.GmodBed[] = JSON.parse(response);
+    let groups: soda.AnnotationGroup<UltraAnnotation>[] = obj.map((o) => UltraBed12Parse(o));
     let n = soda.intervalGraphLayout(groups);
 
     let ann: UltraAnnotation[] = [];
@@ -36,6 +32,8 @@ export function renderHighDetail(query: ChrQuery, response: string, chart: Ultra
     }
     let renderParams: UltraTrackChartRenderParams = {
         repeats: ann,
+        groups: [],
+        segments: [],
         maxY: n + 1,
         queryStart: query.start,
         queryEnd: query.end,
@@ -43,27 +41,39 @@ export function renderHighDetail(query: ChrQuery, response: string, chart: Ultra
     chart.render(renderParams);
 }
 
-export function renderLowDetail(query: ChrQuery, response: string, chart: UltraTrackChart): void {
-    let groups = soda.customBedParse<AnnotationGroup<UltraAnnotation>>(response, UltraBedParseHigh);
+export async function renderGroups(chart: UltraTrackChart, query: UltraQuery, bed: string): Promise<void> {
+    let response = await fetch(`https://sodaviz.cs.umt.edu/ULTRAData/${bed}/${query.chr}/range?start=${query.buffStart}&end=${query.buffEnd}`)
+        .then((data) => data.text())
+        .then((res: string) => res);
+
+    let obj: soda.GmodBed[] = JSON.parse(response);
+    let groups: UltraAnnotationSegment[] = obj.map((o) => UltraBed6Parse(o));
     let n = soda.intervalGraphLayout(groups);
 
-    let ann: UltraAnnotation[] = [];
-    for (const group of groups) {
-        ann.push(new UltraAnnotation({
-            x: group.x,
-            w: group.w,
-            y: group.y,
-            h: 0,
-            id: "",
-            period: 0,
-            repeatClass: "n",
-            score: 0,
-            seq: "",
-        }))
-    }
     let renderParams: UltraTrackChartRenderParams = {
-        repeats: ann,
+        repeats: [],
+        groups: groups,
+        segments: [],
         maxY: n + 1,
+        queryStart: query.start,
+        queryEnd: query.end,
+    }
+    chart.render(renderParams);
+}
+
+export async function renderSegments(chart: UltraTrackChart, query: UltraQuery, bed: string): Promise<void> {
+    let response = await fetch(`https://sodaviz.cs.umt.edu/ULTRAData/${bed}/${query.chr}/range?start=${query.buffStart}&end=${query.buffEnd}`)
+        .then((data) => data.text())
+        .then((res: string) => res);
+
+    let obj: soda.GmodBed[] = JSON.parse(response);
+    let segments: UltraAnnotationSegment[] = obj.map((o) => UltraBed6Parse(o));
+
+    let renderParams: UltraTrackChartRenderParams = {
+        repeats: [],
+        groups: [],
+        segments: segments,
+        maxY: 1,
         queryStart: query.start,
         queryEnd: query.end,
     }

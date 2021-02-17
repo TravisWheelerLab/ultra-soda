@@ -1,10 +1,10 @@
-import {AnnotationGroup, AnnotationGroupConfig, GmodBed} from "@traviswheelerlab/soda";
-import {UltraAnnConfig, UltraAnnotation} from "./ultra-annotation";
+import * as soda from '@traviswheelerlab/soda';
+import {UltraAnnConfig, UltraAnnotation, UltraAnnotationSegment, UltraAnnSegConfig} from "./ultra-annotation";
 
 let id = 0;
 let groupId = 0;
 
-export function UltraBedParseHigh (bedObj: GmodBed): AnnotationGroup<UltraAnnotation> {
+export function UltraBed12Parse (bedObj: soda.GmodBed): soda.AnnotationGroup<UltraAnnotation> {
     const nRE = /(?<seq>[ACGT*]+)/;
     const lowRE = /low_complexity_\((?<period>\d+)\)/;
     const repRE = /repetitive\((?<period>\d+)\)/;
@@ -44,7 +44,8 @@ export function UltraBedParseHigh (bedObj: GmodBed): AnnotationGroup<UltraAnnota
 
         let conf: UltraAnnConfig = {
             id: `ULTRA.${id}.${subId++}`,
-            x: bedObj.chromStart + bedObj.blockStarts[i],
+            // add 1 because bed coordinates are half open
+            x: bedObj.chromStart + bedObj.blockStarts[i] + 1,
             w: bedObj.blockSizes[i],
             y: 0,
             h: 0,
@@ -56,18 +57,39 @@ export function UltraBedParseHigh (bedObj: GmodBed): AnnotationGroup<UltraAnnota
         groupAnn.push(new UltraAnnotation(conf));
     }
 
-    let groupConf: AnnotationGroupConfig<UltraAnnotation> = {
+    let groupConf: soda.AnnotationGroupConfig<UltraAnnotation> = {
         id: `group.${groupId++}`,
         group: groupAnn,
-        x: bedObj.chromStart,
+        // add 1 because bed coordinates are half open
+        x: bedObj.chromStart + 1,
         w: bedObj.chromEnd - bedObj.chromStart,
         y: 0,
         h: 0,
     }
 
-    return new AnnotationGroup(groupConf);
+    return new soda.AnnotationGroup(groupConf);
 }
 
-// export function UltraBedParseLow (bedObj: GmodBed): UltraAnnotation {
-//
-// }
+export function UltraBed6Parse (bedObj: soda.GmodBed): UltraAnnotationSegment {
+    const cntRe = /\d+\((?<cnt>\d+)\)/;
+    const match = cntRe.exec(bedObj.name)
+    let repeatCnt: number;
+    if (match) {
+        repeatCnt = parseInt(match[1]);
+    } else {
+        throw('RE failed');
+    }
+
+    id++;
+    let conf: UltraAnnSegConfig = {
+        id: `ULTRA.${id}`,
+        // add 1 because bed coordinates are half open
+        x: bedObj.chromStart + 1,
+        w: bedObj.chromEnd - bedObj.chromStart,
+        y: 0,
+        h: 0,
+        density: bedObj.score,
+        repeatCnt: repeatCnt,
+    }
+    return new UltraAnnotationSegment(conf);
+}

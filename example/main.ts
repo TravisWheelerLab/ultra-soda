@@ -1,12 +1,10 @@
 import * as soda from '@traviswheelerlab/soda'
 import * as us from 'ultra-soda'
 
-import {ChrQuery} from "../src/ultra-callbacks";
-
-let trackRack = new soda.TrackRack<ChrQuery>({selector: '#charts', queryBuilder: us.queryBuilder, widthThresholds: [10000]});
+let trackRack = new soda.TrackRack<us.UltraQuery>({selector: '#charts', queryBuilder: us.queryBuilder, widthThresholds: [10000, 50000, 500000, 10000000]});
 window.onresize = () => trackRack.resizeController.trigger();
 
-const axis = new soda.AxisChart({});
+const axis = new soda.AxisChart({height: 30});
 const ultra10 = new us.UltraTrackChart({binHeight: 24, maxPeriod: 10});
 const ultra100 = new us.UltraTrackChart({binHeight: 24, maxPeriod: 100});
 const ultra500 = new us.UltraTrackChart({binHeight: 24, maxPeriod: 500});
@@ -19,34 +17,42 @@ trackRack.add(axis,[
             queryEnd: query.end,
         }
         axis.render(renderParams);
-    },
-    (chart, query) => {
-        const renderParams = {
-            queryStart: query.start,
-            queryEnd: query.end,
-        }
-        axis.render(renderParams);
     }
-    ]);
+]);
 
 trackRack.add(ultra10, [
-        (chart, query) => us.renderCallback(chart, '10', query, us.renderHighDetail),
-        (chart, query) => us.renderCallback(chart, '10', query, us.renderLowDetail),
+    (chart, query) => us.renderRepeats(chart, query, '10'),
+    (chart, query) => us.renderGroups(chart, query, '10groups100'),
+    (chart, query) => us.renderGroups(chart, query, '10groups1k'),
+    (chart, query) => us.renderSegments(chart, query, '10segs100k'),
+    (chart, query) => us.renderSegments(chart, query, '10segs1m'),
     ],
     'BED: ultra10');
+
 trackRack.add(ultra100, [
-        (chart, query) => us.renderCallback(chart, '100', query, us.renderHighDetail),
-        (chart, query) => us.renderCallback(chart, '100', query, us.renderLowDetail)
+        (chart, query) => us.renderRepeats(chart, query, '100'),
+        (chart, query) => us.renderGroups(chart, query, '100groups100'),
+        (chart, query) => us.renderGroups(chart, query, '100groups1k'),
+        (chart, query) => us.renderSegments(chart, query, '100segs100k'),
+        (chart, query) => us.renderSegments(chart, query, '100segs1m'),
     ],
     'BED: ultra100');
+
 trackRack.add(ultra500, [
-        (chart, query) => us.renderCallback(chart, '500', query, us.renderHighDetail),
-        (chart, query) => us.renderCallback(chart, '500', query, us.renderLowDetail)
+        (chart, query) => us.renderRepeats(chart, query, '500'),
+        (chart, query) => us.renderGroups(chart, query, '500groups100'),
+        (chart, query) => us.renderGroups(chart, query, '500groups1k'),
+        (chart, query) => us.renderSegments(chart, query, '500segs100k'),
+        (chart, query) => us.renderSegments(chart, query, '500segs1m'),
     ],
     'BED: ultra500');
+
 trackRack.add(ultra4k, [
-        (chart, query) => us.renderCallback(chart, '4k', query, us.renderHighDetail),
-        (chart, query) => us.renderCallback(chart, '4k', query, us.renderLowDetail)
+        (chart, query) => us.renderRepeats(chart, query, '4k'),
+        (chart, query) => us.renderGroups(chart, query, '4kgroups100'),
+        (chart, query) => us.renderGroups(chart, query, '4kgroups1k'),
+        (chart, query) => us.renderSegments(chart, query, '4ksegs100k'),
+        (chart, query) => us.renderSegments(chart, query, '4ksegs1m'),
     ],
     'BED: ultra4k');
 
@@ -59,14 +65,15 @@ function submitQuery() {
     const start = parseInt((<HTMLInputElement>document.getElementById('start')).value);
     const end = parseInt((<HTMLInputElement>document.getElementById('end')).value);
     setUrl(bed, chr, `${start}`, `${end}`);
+    let width = end - start;
     let query = {
         start: start,
         end: end,
+        buffStart: start - width,
+        buffEnd: end + width,
         chr: chr,
     }
-    trackRack.zoomController.setQueryRange(query.start, query.end)
-    trackRack.zoomController.setXScale()
-    trackRack.queryAndRender(query);
+    trackRack.initialRender(query);
 }
 
 function setUrl(bed: string, chr: string, start: string, end: string): void {
