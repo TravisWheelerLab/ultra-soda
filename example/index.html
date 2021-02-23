@@ -14,23 +14,6 @@
             font-size: 16px;
         }
 
-        /*div.axis {*/
-        /*    width: calc(100% - 40px);*/
-        /*    height: 30px;*/
-        /*    margin-top: 20px;*/
-        /*    margin-left: 20px;*/
-        /*    margin-right: 20px;*/
-        /*    overflow-x: hidden;*/
-        /*}*/
-        /*div.ultra-chart {*/
-        /*    width: calc(100% - 40px);*/
-        /*    height: 100px;*/
-        /*    margin-left: 20px;*/
-        /*    margin-right: 20px;*/
-        /*    padding: 0px;*/
-        /*    overflow-x: hidden;*/
-        /*}*/
-
         .field, .buttons, div.info {
             position: relative;
             margin-left: 25%;
@@ -60,7 +43,7 @@
             color: white;
         }
 
-        .field .drop-inputText{
+        .field .drop-input-text{
             width: 100px;
             outline: none;
             border:none;
@@ -68,7 +51,7 @@
             box-shadow: none !important;
         }
 
-        .field .inputText{
+        .field .input-text{
             width: 100%;
             outline: none;
             border:none;
@@ -76,7 +59,7 @@
             box-shadow: none !important;
         }
 
-        .field .inputText:focus{
+        .field .input-text:focus{
             border-color: var(--primary-color);
             border-width: medium medium 2px;
         }
@@ -111,34 +94,6 @@
             color: var(--primary-color);
             opacity: 1.0;
         }
-
-        .autocomplete {
-            background: white;
-            z-index: 1000;
-            font: 14px/22px "-apple-system", BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            overflow: auto;
-            box-sizing: border-box;
-            border: 1px solid rgba(50, 50, 50, 0.6);
-        }
-
-        .autocomplete * {
-            font: inherit;
-        }
-
-        .autocomplete > div {
-            padding: 0 4px;
-        }
-
-        .autocomplete .group {
-            background: #eee;
-        }
-
-        .autocomplete > div:hover:not(.group),
-        .autocomplete > div.selected {
-            background: #81ca91;
-            cursor: pointer;
-        }
-
     </style>
 </head>
 <body>
@@ -149,18 +104,18 @@
     </div>
 
     <form>
-        <div class="field">
-            <select id="bed" class="drop-inputText" required>
-                <option value="10">ULTRA10</option>
-                <option value="100">ULTRA100</option>
-                <option value="500">ULTRA500</option>
-                <option value="4k">ULTRA4k</option>
-            </select>
-            <span class="drop-floating-label">BED</span>
-        </div>
+<!--        <div class="field">-->
+<!--            <select id="bed" class="drop-input-text" required>-->
+<!--                <option value="10">ULTRA10</option>-->
+<!--                <option value="100">ULTRA100</option>-->
+<!--                <option value="500">ULTRA500</option>-->
+<!--                <option value="4k">ULTRA4k</option>-->
+<!--            </select>-->
+<!--            <span class="drop-floating-label">BED</span>-->
+<!--        </div>-->
 
         <div class="field">
-            <select id="chromosome" class="drop-inputText" required>
+            <select id="chromosome" class="drop-input-text" required>
                 <option value="chr1">chr1</option>
                 <option value="chr2">chr2</option>
                 <option value="chr3">chr3</option>
@@ -189,12 +144,12 @@
             <span class="drop-floating-label">Chromosome</span>
         </div>
         <div class="field">
-            <input type="text" id="start" class="inputText" required/>
+            <input type="text" id="start" class="input-text" required/>
             <span class="floating-label">Start</span>
         </div>
 
         <div class="field">
-            <input type="text" id="end" class="inputText" required/>
+            <input type="text" id="end" class="input-text" required/>
             <span class="floating-label">End</span>
         </div>
 

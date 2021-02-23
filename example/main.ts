@@ -60,11 +60,10 @@ initButtons();
 checkUrl();
 
 function submitQuery() {
-    const bed = (<HTMLInputElement>document.getElementById('bed')).value;
     const chr = (<HTMLInputElement>document.getElementById('chromosome')).value;
     const start = parseInt((<HTMLInputElement>document.getElementById('start')).value);
     const end = parseInt((<HTMLInputElement>document.getElementById('end')).value);
-    setUrl(bed, chr, `${start}`, `${end}`);
+    setUrl(chr, `${start}`, `${end}`);
     let width = end - start;
     let query = {
         start: start,
@@ -76,9 +75,8 @@ function submitQuery() {
     trackRack.initialRender(query);
 }
 
-function setUrl(bed: string, chr: string, start: string, end: string): void {
+function setUrl(chr: string, start: string, end: string): void {
     const params = new URLSearchParams(location.search);
-    params.set('bed', bed);
     params.set('chromosome', chr);
     params.set('start', start);
     params.set('end', end);
@@ -89,22 +87,9 @@ function checkUrl(): void {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
 
-    let bedSet = false;
     let chrSet = false;
     let startSet = false;
     let endSet = false;
-
-    let bed = urlParams.get('bed');
-    if (bed !== null) {
-        let bedInput = <HTMLInputElement>document.getElementById('bed');
-        if (bedInput !== undefined) {
-            bedInput.value = bed;
-            bedSet = true;
-        }
-        else {
-            throw("Can't find bed input");
-        }
-    }
 
     let chromosome = urlParams.get('chromosome');
     if (chromosome !== null) {
@@ -142,7 +127,7 @@ function checkUrl(): void {
         }
     }
 
-    if (bedSet && chrSet && startSet && endSet) {
+    if (chrSet && startSet && endSet) {
         submitQuery();
     }
 }
@@ -168,5 +153,5 @@ function reset() {
     (<HTMLInputElement>document.getElementById('chromosome')).value = '';
     (<HTMLInputElement>document.getElementById('start')).value = '';
     (<HTMLInputElement>document.getElementById('end')).value = '';
-    setUrl('10', '', '', '');
+    setUrl('10', '', '');
 }

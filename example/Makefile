@@ -16,7 +16,7 @@
 ###
 
 .PHONY: build
-build: builddir build/d3.js build/index.html
+build: builddir build/index.html
 	npx tsc --build tsconfig-example.json
 	npx webpack-cli --config webpack.config.js
 
@@ -46,9 +46,6 @@ setup:
 
 builddir:
 	mkdir -p build/
-
-build/d3.js:
-	wget -O build/d3.js -nc https://d3js.org/d3.v5.js
 
 build/index.html: index.html
 	cp index.html build/

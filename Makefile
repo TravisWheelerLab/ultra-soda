@@ -21,7 +21,7 @@ build:
 	cd src && npx tsc --build tsconfig-src.json
 	
 .PHONY: builde
-builde: example/build/d3.js example/build/index.html
+builde: example/build/index.html
 	@echo "Building ultra-soda..."
 	cd src && npx tsc --build tsconfig-src.json
 	@echo "Building ultra-soda example..."
