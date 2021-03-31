@@ -72,7 +72,9 @@ function submitQuery() {
         buffEnd: end + width,
         chr: chr,
     }
-    trackRack.initialRender(query);
+    if (soda.queryOk(query)) {
+        trackRack.initialRender(query);
+    }
 }
 
 function setUrl(chr: string, start: string, end: string): void {
@@ -146,12 +148,24 @@ function initButtons(): void {
     } else {
         throw("Can't find reset button");
     }
+
+    const exampleButton = document.getElementById('example')!;
+    if (exampleButton !== undefined) {
+        exampleButton.addEventListener('click', example);
+    } else {
+        throw("Can't find example button");
+    }
+}
+
+function example() {
+    (<HTMLInputElement>document.getElementById('chromosome')).value = 'chr1';
+    (<HTMLInputElement>document.getElementById('start')).value = '1000000';
+    (<HTMLInputElement>document.getElementById('end')).value = '1010000';
 }
 
 function reset() {
-    (<HTMLInputElement>document.getElementById('bed')).value = '10';
-    (<HTMLInputElement>document.getElementById('chromosome')).value = '';
+    (<HTMLInputElement>document.getElementById('chromosome')).value = 'chr1';
     (<HTMLInputElement>document.getElementById('start')).value = '';
     (<HTMLInputElement>document.getElementById('end')).value = '';
-    setUrl('10', '', '');
+    setUrl('chr1', '', '');
 }

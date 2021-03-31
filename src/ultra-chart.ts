@@ -1,21 +1,19 @@
 import * as d3 from 'd3';
 import * as soda from '@traviswheelerlab/soda';
-
-import {TrackChart, TrackChartRenderParams, ChartConfig} from "@traviswheelerlab/soda";
 import {UltraAnnotation, UltraAnnotationSegment} from "./ultra-annotation";
 
-export interface UltraTrackChartConfig extends ChartConfig {
+export interface UltraTrackChartConfig extends soda.ChartConfig {
     maxPeriod: number;
 }
 
-export interface UltraTrackChartRenderParams extends TrackChartRenderParams {
+export interface UltraTrackChartRenderParams extends soda.TrackChartRenderParams {
     maxY:       number;
     repeats:    UltraAnnotation[];
     groups:     UltraAnnotationSegment[];
     segments:   UltraAnnotationSegment[];
 }
 
-export class UltraTrackChart extends TrackChart<UltraTrackChartRenderParams> {
+export class UltraTrackChart extends soda.TrackChart<UltraTrackChartRenderParams> {
     periodColorScale: d3.ScaleSequential<string>;
     densityColorScale: d3.ScaleSequential<string>;
     classColorScale: d3.ScaleOrdinal<string, string>;
@@ -77,12 +75,9 @@ export class UltraTrackChart extends TrackChart<UltraTrackChartRenderParams> {
     }
 
     protected bindTooltips(repeats: UltraAnnotation[]) {
-        for (const ann of repeats) {
-            const conf: soda.TooltipConfig<UltraAnnotation, UltraTrackChart> = {
-                ann: ann,
-                text: (a) => `${a.seq}(${a.period}) | ${a.score} | ${a.x} - ${a.x + a.w}`,
-            }
-            soda.tooltip(this, conf);
+        const conf: soda.TooltipConfig<UltraAnnotation, UltraTrackChart> = {
+            text: (a) => `${a.seq}(${a.period}) | ${a.score} | ${a.x} - ${a.x + a.w}`,
         }
+        soda.tooltip(this, repeats, conf);
     }
 }

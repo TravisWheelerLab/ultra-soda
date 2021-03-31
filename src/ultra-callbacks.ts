@@ -22,7 +22,7 @@ export async function renderRepeats(chart: UltraTrackChart, query: UltraQuery, b
         .then((data) => data.text())
         .then((res: string) => res);
 
-    let obj: soda.GmodBed[] = JSON.parse(response);
+    let obj: soda.BedRecord[] = JSON.parse(response);
     let groups: soda.AnnotationGroup<UltraAnnotation>[] = obj.map((o) => UltraBed12Parse(o));
     let n = soda.intervalGraphLayout(groups);
 
@@ -46,7 +46,7 @@ export async function renderGroups(chart: UltraTrackChart, query: UltraQuery, be
         .then((data) => data.text())
         .then((res: string) => res);
 
-    let obj: soda.GmodBed[] = JSON.parse(response);
+    let obj: soda.BedRecord[] = JSON.parse(response);
     let groups: UltraAnnotationSegment[] = obj.map((o) => UltraBed6Parse(o));
     let n = soda.intervalGraphLayout(groups);
 
@@ -66,7 +66,7 @@ export async function renderSegments(chart: UltraTrackChart, query: UltraQuery, 
         .then((data) => data.text())
         .then((res: string) => res);
 
-    let obj: soda.GmodBed[] = JSON.parse(response);
+    let obj: soda.BedRecord[] = JSON.parse(response);
     let segments: UltraAnnotationSegment[] = obj.map((o) => UltraBed6Parse(o));
 
     let renderParams: UltraTrackChartRenderParams = {

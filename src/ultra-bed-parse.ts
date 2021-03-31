@@ -4,7 +4,7 @@ import {UltraAnnConfig, UltraAnnotation, UltraAnnotationSegment, UltraAnnSegConf
 let id = 0;
 let groupId = 0;
 
-export function UltraBed12Parse (bedObj: soda.GmodBed): soda.AnnotationGroup<UltraAnnotation> {
+export function UltraBed12Parse (bedObj: soda.BedRecord): soda.AnnotationGroup<UltraAnnotation> {
     const nRE = /(?<seq>[ACGT*]+)/;
     const lowRE = /low_complexity_\((?<period>\d+)\)/;
     const repRE = /repetitive\((?<period>\d+)\)/;
@@ -48,7 +48,6 @@ export function UltraBed12Parse (bedObj: soda.GmodBed): soda.AnnotationGroup<Ult
             x: bedObj.chromStart + bedObj.blockStarts[i] + 1,
             w: bedObj.blockSizes[i],
             y: 0,
-            h: 0,
             score: bedObj.score,
             period: period,
             repeatClass: repeatClass,
@@ -64,13 +63,12 @@ export function UltraBed12Parse (bedObj: soda.GmodBed): soda.AnnotationGroup<Ult
         x: bedObj.chromStart + 1,
         w: bedObj.chromEnd - bedObj.chromStart,
         y: 0,
-        h: 0,
     }
 
     return new soda.AnnotationGroup(groupConf);
 }
 
-export function UltraBed6Parse (bedObj: soda.GmodBed): UltraAnnotationSegment {
+export function UltraBed6Parse (bedObj: soda.BedRecord): UltraAnnotationSegment {
     const cntRe = /\d+\((?<cnt>\d+)\)/;
     const match = cntRe.exec(bedObj.name)
     let repeatCnt: number;
@@ -87,7 +85,6 @@ export function UltraBed6Parse (bedObj: soda.GmodBed): UltraAnnotationSegment {
         x: bedObj.chromStart + 1,
         w: bedObj.chromEnd - bedObj.chromStart,
         y: 0,
-        h: 0,
         density: bedObj.score,
         repeatCnt: repeatCnt,
     }
